@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { follow, setUsersData, unFollow, setUsersDataFetching, toggleIsFollowingProgress } from "../../../redux/reducers/usersReducer";
-import { getUsersRequest } from "../../../serverRequests/usersRequests";
+import { follow, unFollow, getUsers } from "../../../redux/reducers/usersReducer";
 import Users from "./Users";
 
 class UsersContainer extends React.Component {
@@ -10,22 +9,14 @@ class UsersContainer extends React.Component {
 
     onScroll = () => {
         ++this.currentPage;
-        this._loadUsers();
-    }
-
-    _loadUsers() {
-        this.props.setUsersDataFetching(true);
-        getUsersRequest(this.currentPage).then(response => {
-            this.props.setUsersData(response.items);
-            this.props.setUsersDataFetching(false);
-        })
+        this.props.getUsers(this.currentPage);
     }
 
     componentDidMount() {
 
         window.addEventListener('scroll', this.onScroll)
 
-        this._loadUsers();
+        this.props.getUsers(this.currentPage);
     }
 
     componentWillUnmount() {
@@ -38,8 +29,7 @@ class UsersContainer extends React.Component {
             unFollow={this.props.unFollow}
             follow={this.props.follow} 
             isFetching={this.props.isFetching}
-            followingProgressUsers={this.props.followingProgressUsers}
-            toggleIsFollowingProgress={this.props.toggleIsFollowingProgress}/>
+            followingProgressUsers={this.props.followingProgressUsers}/>
     }
 }
 
@@ -53,7 +43,5 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {
     follow,
     unFollow,
-    setUsersData,
-    setUsersDataFetching,
-    toggleIsFollowingProgress,
+    getUsers,
 })(UsersContainer);

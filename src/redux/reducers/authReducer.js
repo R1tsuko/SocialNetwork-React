@@ -1,3 +1,5 @@
+import { authRequest } from "../../serverRequests/authRequests";
+
 const SET_AUTH_DATA = 'SET_AUTH_DATA';
 
 let defaultState = {
@@ -21,5 +23,14 @@ const authReducer = (state = defaultState, action) => {
 }
 
 export const setAuthData = (id, email, login) => ({ type: SET_AUTH_DATA, data: {id, email, login} });
+
+export const authenticate = () => ((dispatch) => {
+    authRequest().then((response) => {
+        if (!response.resultCode) {
+            let { id, email, login } = response.data
+            dispatch(setAuthData(id, email, login));
+        }
+    })
+})
 
 export default authReducer;

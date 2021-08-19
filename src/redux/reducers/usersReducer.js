@@ -1,3 +1,5 @@
+import { followRequest, getUsersRequest, unFollowRequest } from "../../serverRequests/usersRequests";
+
 const FOLLOW = 'FOLLOW';
 const UNFOLLOW = 'UNFOLLOW';
 const SET_USERS_DATA = 'SET_USERS_DATA';
@@ -44,10 +46,40 @@ const usersReducer = (state = defaultState, action) => {
     }
 }
 
-export const follow = (userId) => ({ type: FOLLOW, userId });
-export const unFollow = (userId) => ({ type: UNFOLLOW, userId });
+export const followSucces = (userId) => ({ type: FOLLOW, userId });
+export const unFollowSucces = (userId) => ({ type: UNFOLLOW, userId });
 export const setUsersData = (usersData) => ({ type: SET_USERS_DATA, usersData });
 export const setUsersDataFetching = (isFetching) => ({ type: SET_USERS_DATA_FETCHING, isFetching });
 export const toggleIsFollowingProgress = (userId) => ({ type: TOGGLE_IS_FOLLOWING_PROGRESS, userId });
+
+export const getUsers = (currentPage) => ((dispatch) => {
+    dispatch(setUsersDataFetching(true));
+    getUsersRequest(currentPage).then(response => {
+        dispatch(setUsersData(response.items));
+        dispatch(setUsersDataFetching(false));
+    })
+})
+export const follow = (userId) => ((dispatch) => {
+    dispatch(toggleIsFollowingProgress(userId));
+
+    followRequest(userId).then(response => {
+        if (!response.resultCode) {
+            dispatch(followSucces(userId));
+        }
+
+        dispatch(toggleIsFollowingProgress(userId));
+    })
+})
+export const unFollow = (userId) => ((dispatch) => {
+    dispatch(toggleIsFollowingProgress(userId));
+
+    unFollowRequest(userId).then(response => {
+        if (!response.resultCode) {
+            dispatch(unFollowSucces(userId));
+        }
+
+        dispatch(toggleIsFollowingProgress(userId));
+    })
+})
 
 export default usersReducer;

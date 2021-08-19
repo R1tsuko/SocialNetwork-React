@@ -1,3 +1,5 @@
+import { profileRequest } from "../../serverRequests/profileRequests";
+
 const ADD_POST = 'ADD_POST';
 const UPDATE_NEW_POST_TEXT = 'UPDATE_NEW_POST_TEXT';
 const SET_PROFILE = 'SET_PROFILE';
@@ -39,5 +41,11 @@ const profileReducer = (state = defaultState, action) => {
 export const addPostCreator = () => ({ type: ADD_POST });
 export const updateNewPostTextCreator = (newPostText) => ({ type: UPDATE_NEW_POST_TEXT, newPostText });
 export const setProfile = (profile) => ({ type: SET_PROFILE, profile });
+
+export const getProfile = (userId) => ((dispatch) => {
+    profileRequest(userId).then(response => {
+        dispatch(setProfile(response));
+    })
+})
 
 export default profileReducer;
