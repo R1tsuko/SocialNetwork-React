@@ -1,33 +1,31 @@
-import axios from "axios";
 import React from "react";
 import { connect } from "react-redux";
-import { follow, setUsersData, unFollow, setUsersDataFetching } from "../../../redux/reducers/usersReducer";
+import { follow, setUsersData, unFollow, setUsersDataFetching, toggleIsFollowingProgress } from "../../../redux/reducers/usersReducer";
+import { getUsersRequest } from "../../../serverRequests/usersRequests";
 import Users from "./Users";
 
 class UsersContainer extends React.Component {
 
-    currentPage = 1 // надо бы похорошему это переместить в стейт но скоро рефакторинг тогда и сделается
-    //( при уничтожении компонента апдейтить значение 1) эта штука участвует в отрисовке, поэтому все норм
+    currentPage = 1 // костыль, пофикшу когда посомтрю хуки, но так то нужно засунуть или в локал стейт или в редаксовский
 
     onScroll = () => {
-        this.getUsers(++this.currentPage);
+        ++this.currentPage;
+        this._loadUsers();
     }
 
-    getUsers(page) {
+    _loadUsers() {
         this.props.setUsersDataFetching(true);
-        axios
-            .get(`https://social-network.samuraijs.com/api/1.0/users?page=${page}&count=10`)
-            .then(response => {
-                this.props.setUsersData(response.data.items);
-                this.props.setUsersDataFetching(false);
-            })
+        getUsersRequest(this.currentPage).then(response => {
+            this.props.setUsersData(response.items);
+            this.props.setUsersDataFetching(false);
+        })
     }
 
     componentDidMount() {
 
         window.addEventListener('scroll', this.onScroll)
 
-        this.getUsers(1);
+        this._loadUsers();
     }
 
     componentWillUnmount() {
@@ -39,7 +37,9 @@ class UsersContainer extends React.Component {
             usersData={this.props.usersData}
             unFollow={this.props.unFollow}
             follow={this.props.follow} 
-            isFetching={this.props.isFetching}/>
+            isFetching={this.props.isFetching}
+            followingProgressUsers={this.props.followingProgressUsers}
+            toggleIsFollowingProgress={this.props.toggleIsFollowingProgress}/>
     }
 }
 
@@ -47,12 +47,13 @@ const mapStateToProps = (state) => {
     return {
         usersData: state.usersPage.usersData,
         isFetching: state.usersPage.isFetching,
+        followingProgressUsers: state.usersPage.followingProgressUsers,
     }
 }
-
 export default connect(mapStateToProps, {
     follow,
     unFollow,
     setUsersData,
     setUsersDataFetching,
+    toggleIsFollowingProgress,
 })(UsersContainer);

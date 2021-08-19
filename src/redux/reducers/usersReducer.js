@@ -2,10 +2,12 @@ const FOLLOW = 'FOLLOW';
 const UNFOLLOW = 'UNFOLLOW';
 const SET_USERS_DATA = 'SET_USERS_DATA';
 const SET_USERS_DATA_FETCHING = 'SET_USERS_DATA_FETCHING';
+const TOGGLE_IS_FOLLOWING_PROGRESS = 'TOGGLE_IS_FOLLOWING_PROGRESS';
 
 let defaultState = {
     usersData: [],
     isFetching: false,
+    followingProgressUsers: [],
 }
 
 const usersReducer = (state = defaultState, action) => {
@@ -30,6 +32,13 @@ const usersReducer = (state = defaultState, action) => {
                 ...state,
                 isFetching: action.isFetching,
             }
+        case TOGGLE_IS_FOLLOWING_PROGRESS:
+            return {
+                ...state,
+                followingProgressUsers: state.followingProgressUsers.includes(action.userId)
+                    ? state.followingProgressUsers.filter(id => action.userId !== id)
+                    : [...state.followingProgressUsers, action.userId],
+            }
         default:
             return state;
     }
@@ -39,5 +48,6 @@ export const follow = (userId) => ({ type: FOLLOW, userId });
 export const unFollow = (userId) => ({ type: UNFOLLOW, userId });
 export const setUsersData = (usersData) => ({ type: SET_USERS_DATA, usersData });
 export const setUsersDataFetching = (isFetching) => ({ type: SET_USERS_DATA_FETCHING, isFetching });
+export const toggleIsFollowingProgress = (userId) => ({ type: TOGGLE_IS_FOLLOWING_PROGRESS, userId });
 
 export default usersReducer;
